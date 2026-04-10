@@ -190,9 +190,9 @@ See [LICENSE](LICENSE) for full terms.
 
 ## 👤 Author
 
-**[Your Name]**
+**Prateek Agarwal**
 Assistant Professor — CSE / AI Department
-Institute 319 | Bareilly, Uttar Pradesh
+Institute AKTU 319 | Bareilly, Uttar Pradesh
 
 ---
 
