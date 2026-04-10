@@ -1,48 +1,653 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Software Testing Flashcards</title>
-  <style>
-    body { font-family: Arial, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 2rem; background: #f0f4f8; }
-    h1 { color: #2d3748; }
-    .card { background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 400px; min-height: 200px; display: flex; align-items: center; justify-content: center; text-align: center; padding: 2rem; cursor: pointer; margin: 1.5rem 0; font-size: 1.2rem; transition: transform 0.2s; }
-    .card:hover { transform: scale(1.02); }
-    .controls { display: flex; gap: 1rem; }
-    button { padding: 0.5rem 1.5rem; border: none; border-radius: 8px; background: #4299e1; color: white; cursor: pointer; font-size: 1rem; }
-    button:hover { background: #3182ce; }
-    .count { color: #718096; margin-top: 0.5rem; }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Software Testing — Flashcards</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:ital,wght@0,400;1,400&family=DM+Sans:ital,wght@0,300;0,400;1,400&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #05050a;
+    --surface: #0e0e1a;
+    --border: rgba(255,255,255,0.07);
+    --text: #e8e8f0;
+    --muted: #5a5a7a;
+    --accent: #c8ff00;
+    --accent2: #ff6b6b;
+    --accent3: #6bffdf;
+    --card-h: 420px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* BG grid */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    background-image:
+      linear-gradient(rgba(200,255,0,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(200,255,0,0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+  }
+
+  .wrap { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 40px 20px 80px; }
+
+  /* ── HEADER ── */
+  header { margin-bottom: 56px; }
+  .badge {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 4px 12px;
+    border-radius: 2px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+  }
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(36px, 7vw, 72px);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -2px;
+    color: #fff;
+    margin-bottom: 16px;
+  }
+  h1 span { color: var(--accent); }
+  .header-meta {
+    font-size: 13px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    display: flex; gap: 24px; flex-wrap: wrap;
+  }
+  .header-meta b { color: var(--text); }
+
+  /* ── CONTROLS ── */
+  .controls {
+    display: flex; gap: 10px; flex-wrap: wrap;
+    margin-bottom: 32px; align-items: center;
+  }
+  .btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    border-radius: 3px;
+    padding: 9px 18px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+  .btn-quiz {
+    margin-left: auto;
+    background: transparent;
+    border: 1px solid var(--accent2);
+    color: var(--accent2);
+  }
+  .btn-quiz:hover { background: var(--accent2); color: #000; }
+  .btn-quiz.on { background: var(--accent2); color: #000; font-weight: 700; }
+
+  /* ── PROGRESS ── */
+  .progress-row {
+    display: flex; justify-content: space-between;
+    font-family: 'DM Mono', monospace; font-size: 11px;
+    color: var(--muted); margin-bottom: 8px;
+  }
+  .progress-track {
+    height: 2px; background: var(--border);
+    border-radius: 2px; margin-bottom: 32px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--accent);
+    border-radius: 2px; transition: width 0.4s ease;
+  }
+
+  /* ── FLASHCARD ── */
+  .card-shell {
+    perspective: 1200px;
+    min-height: var(--card-h);
+    margin-bottom: 24px;
+    cursor: pointer;
+  }
+  .card-inner {
+    position: relative;
+    width: 100%; min-height: var(--card-h);
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(0.4,0,0.2,1), opacity 0.2s;
+  }
+  .card-inner.flipped { transform: rotateY(180deg); }
+  .card-inner.animating { opacity: 0; transform: scale(0.96); }
+
+  .card-face {
+    position: absolute; inset: 0;
+    backface-visibility: hidden;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    padding: 36px 40px;
+    display: flex; flex-direction: column;
+    min-height: var(--card-h);
+  }
+  .card-front { background: var(--surface); }
+  .card-back  {
+    background: var(--surface);
+    transform: rotateY(180deg);
+  }
+
+  /* card accent line */
+  .card-face::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 2px; border-radius: 12px 12px 0 0;
+    background: var(--card-accent, var(--accent));
+  }
+
+  .card-top {
+    display: flex; justify-content: space-between;
+    align-items: center; margin-bottom: 28px;
+  }
+  .cat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--card-accent, var(--accent));
+    border: 1px solid currentColor;
+    padding: 3px 10px; border-radius: 2px;
+  }
+  .card-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px; color: var(--muted);
+  }
+  .card-emoji { font-size: 48px; margin-bottom: 16px; display: block; }
+  .card-term {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.05;
+    color: #fff;
+    margin-bottom: 24px;
+  }
+  .card-hint {
+    margin-top: auto;
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card-hint::before {
+    content: '';
+    display: inline-block; width: 20px; height: 1px;
+    background: var(--muted);
+  }
+  .kp-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+  .kp {
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 4px 10px; border-radius: 2px;
+  }
+
+  /* back */
+  .back-term {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px; font-weight: 700;
+    color: var(--card-accent, var(--accent));
+    margin-bottom: 14px;
+  }
+  .back-def {
+    font-size: 15px; line-height: 1.75;
+    color: #c0c0d8; margin-bottom: 20px;
+  }
+  .example-block {
+    background: rgba(255,255,255,0.03);
+    border-left: 2px solid var(--card-accent, var(--accent));
+    padding: 14px 18px; border-radius: 0 6px 6px 0;
+    margin-bottom: 20px;
+  }
+  .example-lbl {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px; letter-spacing: 2px;
+    color: var(--card-accent, var(--accent));
+    margin-bottom: 8px; text-transform: uppercase;
+  }
+  .example-txt {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px; line-height: 1.7;
+    color: var(--muted); font-style: italic;
+  }
+  .kp-back { display: flex; flex-wrap: wrap; gap: 8px; }
+  .kp-b {
+    font-size: 11px; font-family: 'DM Mono', monospace;
+    padding: 4px 10px; border-radius: 2px;
+    border: 1px solid var(--card-accent, rgba(255,255,255,0.1));
+    color: var(--card-accent, #fff);
+  }
+  .flip-hint-back {
+    margin-top: auto; font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    color: var(--muted); text-align: right;
+  }
+
+  /* ── QUIZ ── */
+  .quiz-section { margin-bottom: 20px; }
+  .quiz-lbl { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); margin-bottom: 10px; letter-spacing: 1px; text-transform: uppercase; }
+  .quiz-row { display: flex; gap: 10px; }
+  .quiz-inp {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 12px 16px;
+    color: #fff;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    outline: none;
+    transition: border 0.2s;
+  }
+  .quiz-inp:focus { border-color: var(--accent); }
+  .quiz-inp.correct { border-color: var(--accent3); }
+  .quiz-inp.wrong   { border-color: var(--accent2); }
+  .quiz-submit {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 4px;
+    padding: 12px 22px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .quiz-submit:hover { opacity: 0.85; }
+  .quiz-see {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 4px;
+    padding: 12px 22px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .quiz-feedback {
+    margin-top: 12px; padding: 12px 16px;
+    border-radius: 4px; font-family: 'DM Mono', monospace; font-size: 12px;
+  }
+  .quiz-feedback.correct { background: rgba(107,255,223,0.08); border: 1px solid rgba(107,255,223,0.3); color: var(--accent3); }
+  .quiz-feedback.wrong   { background: rgba(255,107,107,0.08); border: 1px solid rgba(255,107,107,0.3); color: var(--accent2); }
+
+  /* ── NAV ── */
+  .nav-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 48px; }
+  .nav-btn {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 13px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px 28px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .nav-btn.next { background: var(--accent); color: #000; border-color: var(--accent); }
+  .nav-btn.next:hover { opacity: 0.85; }
+  .dots-row { display: flex; gap: 6px; align-items: center; }
+  .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--border); cursor: pointer; transition: all 0.3s;
+    border: 1px solid transparent;
+  }
+  .dot.active { background: var(--accent); width: 20px; border-radius: 3px; }
+
+  /* ── STATS ── */
+  .stats-row {
+    display: flex; gap: 16px; flex-wrap: wrap;
+    margin-bottom: 48px;
+  }
+  .stat {
+    flex: 1; min-width: 120px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 18px 20px;
+  }
+  .stat-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 32px; font-weight: 800;
+    color: var(--accent); line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-lbl {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; letter-spacing: 2px;
+    color: var(--muted); text-transform: uppercase;
+  }
+
+  /* ── GRID ── */
+  .grid-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; letter-spacing: 3px;
+    color: var(--muted); text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; }
+  .gc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative; overflow: hidden;
+  }
+  .gc::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 2px; background: var(--gc-accent, transparent);
+    transition: background 0.2s;
+  }
+  .gc:hover { border-color: rgba(200,255,0,0.3); }
+  .gc.cur { border-color: var(--gc-accent, var(--accent)); }
+  .gc-emoji { font-size: 20px; margin-bottom: 6px; }
+  .gc-name { font-size: 10px; color: var(--muted); line-height: 1.4; font-family: 'DM Mono', monospace; }
+  .gc.cur .gc-name { color: var(--text); }
+  .gc-studied { font-size: 9px; color: var(--accent3); margin-top: 4px; font-family: 'DM Mono', monospace; }
+
+  footer { margin-top: 64px; text-align: center; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 2px; }
+
+  @media (max-width: 600px) {
+    .card-face { padding: 24px 20px; }
+    .controls { gap: 6px; }
+    .btn-quiz { margin-left: 0; }
+  }
+</style>
 </head>
 <body>
-  <h1>Software Testing Flashcards</h1>
-  <div class="card" id="card" onclick="flip()">Click to reveal answer</div>
-  <div class="count" id="count"></div>
-  <div class="controls">
-    <button onclick="prev()">Previous</button>
-    <button onclick="next()">Next</button>
+<div class="wrap">
+
+  <header>
+    <div class="badge">B.Tech · 6th Sem · Software Engineering</div>
+    <h1>Software<br/><span>Testing.</span></h1>
+    <div class="header-meta">
+      <span><b id="hd-total">28</b> concepts</span>
+      <span><b id="hd-studied">0</b> studied</span>
+      <span><b id="hd-cats">9</b> categories</span>
+    </div>
+  </header>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat"><div class="stat-val" id="st-card">1</div><div class="stat-lbl">Current Card</div></div>
+    <div class="stat"><div class="stat-val" id="st-studied">0</div><div class="stat-lbl">Studied</div></div>
+    <div class="stat"><div class="stat-val" id="st-score">—</div><div class="stat-lbl">Quiz Score</div></div>
+    <div class="stat"><div class="stat-val" id="st-pct">0%</div><div class="stat-lbl">Progress</div></div>
   </div>
-  <script>
-    const cards = [
-      { q: "What is software testing?", a: "The process of evaluating a system to detect differences between given input and expected output." },
-      { q: "What is unit testing?", a: "Testing individual components or functions in isolation." },
-      { q: "What is integration testing?", a: "Testing combined parts of an application to verify they work together." },
-      { q: "What is regression testing?", a: "Re-running tests to ensure previously working functionality still works after changes." },
-      { q: "What is black-box testing?", a: "Testing without knowledge of the internal implementation." },
-      { q: "What is white-box testing?", a: "Testing with knowledge of the internal code structure." },
-      { q: "What is a test case?", a: "A set of conditions used to determine whether a system works correctly." },
-      { q: "What is a bug?", a: "A flaw in the software that causes it to produce incorrect or unexpected results." },
-    ];
-    let idx = 0, showing = 'q';
-    function render() {
-      document.getElementById('card').textContent = cards[idx][showing];
-      document.getElementById('count').textContent = `Card ${idx + 1} of ${cards.length}`;
-    }
-    function flip() { showing = showing === 'q' ? 'a' : 'q'; render(); }
-    function next() { idx = (idx + 1) % cards.length; showing = 'q'; render(); }
-    function prev() { idx = (idx - 1 + cards.length) % cards.length; showing = 'q'; render(); }
-    render();
-  </script>
+
+  <!-- Controls -->
+  <div class="controls" id="cat-btns"></div>
+
+  <!-- Progress -->
+  <div class="progress-row">
+    <span id="pr-left">Card 1 of 28</span>
+    <span id="pr-right">0% complete</span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+
+  <!-- Quiz input -->
+  <div class="quiz-section" id="quiz-section" style="display:none">
+    <div class="quiz-lbl">// What is this concept called?</div>
+    <div class="quiz-row">
+      <input class="quiz-inp" id="quiz-inp" type="text" placeholder="type your answer..."
+        oninput="quizAnswer=this.value"
+        onkeydown="if(event.key==='Enter'&&!quizResult)checkQuiz()"/>
+      <button class="quiz-submit" id="quiz-btn" onclick="quizBtnClick()">CHECK</button>
+    </div>
+    <div class="quiz-feedback" id="quiz-fb" style="display:none"></div>
+  </div>
+
+  <!-- Card -->
+  <div class="card-shell" id="card-shell" onclick="handleFlip()">
+    <div class="card-inner" id="card-inner">
+      <div class="card-face card-front" id="card-front"></div>
+      <div class="card-face card-back"  id="card-back"></div>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <div class="nav-row">
+    <button class="nav-btn prev" onclick="navigate(-1)">← Prev</button>
+    <div class="dots-row" id="dots-row"></div>
+    <button class="nav-btn next" onclick="navigate(1)">Next →</button>
+  </div>
+
+  <!-- Grid -->
+  <div class="grid-title">// Quick Reference — All Cards</div>
+  <div class="grid" id="grid"></div>
+
+  <footer>Software Engineering · Unit: Software Testing · Institute 319</footer>
+</div>
+
+<script>
+const flashcards = [
+  {id:1,  category:"Fundamentals",         emoji:"🧪", term:"Software Testing",            definition:"The process of evaluating and verifying that a software application does what it is supposed to do.",                                                              example:"Testing a login form to ensure valid credentials grant access and invalid ones show an error.",                                                                                                   keyPoints:["Finds bugs before users do","Improves quality","Reduces cost of fixing bugs later"],                         color:"#c8ff00"},
+  {id:2,  category:"Fundamentals",         emoji:"🎯", term:"Test Case",                    definition:"A set of conditions or inputs, actions, and expected results used to determine whether a feature works correctly.",                                                 example:"TC01: Input email='test@mail.com', password='Pass@123' → Expected: Login success, Redirect to dashboard.",       keyPoints:["Has a unique ID","Has input + expected output","Has pass/fail result"],                                      color:"#ffaa00"},
+  {id:3,  category:"Fundamentals",         emoji:"🐛", term:"Bug / Defect",                 definition:"A flaw or error in the software that causes it to behave incorrectly or produce unexpected results.",                                                              example:"Trekoroma shows 'Booking Confirmed' but no data is saved to the database. That gap = a bug.",                    keyPoints:["Bug = coding mistake","Defect = deviation from requirement","Failure = observed wrong behavior"],             color:"#ff6b6b"},
+  {id:4,  category:"Box Testing",          emoji:"⬛", term:"Black Box Testing",            definition:"Testing without any knowledge of internal code. Tester only knows inputs and expected outputs.",                                                                   example:"Testing Trekoroma's search: Enter 'Manali' → Expect trek results. Tester doesn't know HOW search works internally.", keyPoints:["No code knowledge needed","Based on requirements/specs","Catches UI & functional bugs"],               color:"#aaaaaa"},
+  {id:5,  category:"Box Testing",          emoji:"⬜", term:"White Box Testing",            definition:"Testing with full knowledge of internal code. Tests logic paths, branches, loops and conditions.",                                                                 example:"Checking every IF-ELSE branch in the discount calculation function using a control flow graph.",                  keyPoints:["Requires code access","Checks all code paths","Uses coverage metrics"],                                      color:"#6bffdf"},
+  {id:6,  category:"Box Testing",          emoji:"🩶", term:"Grey Box Testing",             definition:"Partial knowledge of internal structure. Tester knows database schema or API structure but not full code.",                                                        example:"Knowing Trekoroma's DB has a 'bookings' table, tester crafts specific inputs to test SQL queries without seeing code.", keyPoints:["Mix of black + white box","Tester knows some internals","Good for integration testing"],             color:"#b0b0cc"},
+  {id:7,  category:"Black Box Techniques", emoji:"📦", term:"Equivalence Partitioning (EP)",definition:"Divides input data into groups (partitions) where all values in a group behave the same way. Test one from each group.",                                           example:"Password field (min 8 chars): Valid: 8-20 chars | Invalid: <8 chars | Invalid: >20 chars. Test one from each.",  keyPoints:["Reduces number of test cases","One value represents whole group","Valid + invalid partitions"],              color:"#c8ff00"},
+  {id:8,  category:"Black Box Techniques", emoji:"📏", term:"Boundary Value Analysis (BVA)",definition:"Tests values at the exact boundary of input ranges, since bugs most often occur at boundaries.",                                                                  example:"Password min=8, max=20: Test 7 (fail), 8 (pass), 9 (pass), 19 (pass), 20 (pass), 21 (fail).",                  keyPoints:["Test min-1, min, min+1","Test max-1, max, max+1","Most bugs hide at boundaries"],                             color:"#ff9f43"},
+  {id:9,  category:"Black Box Techniques", emoji:"📋", term:"Decision Table Testing",       definition:"A table that maps all combinations of input conditions to their expected outputs. Good for business rules.",                                                        example:"Trekoroma discount: (Member=Y, Amt>1000)→20% off | (Member=N, Amt>1000)→10% off | else→No discount.",           keyPoints:["Handles complex logic","All condition combos covered","Great for business rules"],                             color:"#ff6b6b"},
+  {id:10, category:"White Box Techniques", emoji:"🛤️", term:"Statement Coverage",           definition:"Every line/statement in the code must be executed at least once during testing.",                                                                                  example:"If your function has 20 lines and tests execute 16, coverage = 80%. Goal: 100% statement coverage.",             keyPoints:["Simplest coverage metric","Every line must run","coverage.py measures this"],                                 color:"#6bffdf"},
+  {id:11, category:"White Box Techniques", emoji:"🌿", term:"Branch Coverage",              definition:"Every branch (True/False) of every decision point must be executed at least once.",                                                                               example:"if (price > 1000): Test with price=2000 (True branch) AND price=500 (False branch). Both must run.",            keyPoints:["Stronger than statement coverage","Tests both IF and ELSE","Also called decision coverage"],                  color:"#54e88a"},
+  {id:12, category:"White Box Techniques", emoji:"🔢", term:"Cyclomatic Complexity",        definition:"A measure of the number of independent paths through a program. CC = Edges - Nodes + 2.",                                                                         example:"A function with 2 IF statements has CC=3. Means you need minimum 3 test cases for full path coverage.",          keyPoints:["CC = E - N + 2","Higher CC = harder to test","Aim for CC < 10 per function"],                                color:"#a78bfa"},
+  {id:13, category:"Testing Levels",       emoji:"🔬", term:"Unit Testing",                 definition:"Testing the smallest individual piece of code (a single function or method) in isolation from the rest.",                                                         example:"Testing only the calculate_discount() function with mock inputs — no database, no UI involved.",                 keyPoints:["Tests one function at a time","Uses mocks/stubs for dependencies","Tools: pytest, Jest, JUnit"],              color:"#ff6b6b"},
+  {id:14, category:"Testing Levels",       emoji:"🔗", term:"Integration Testing",          definition:"Testing how multiple modules/components work together. Finds interface and communication bugs.",                                                                   example:"After unit testing login and database separately, test them together: login form → API → database → response.",  keyPoints:["Tests module interactions","Big Bang, Top-Down, Bottom-Up","Tools: Postman, REST Assured"],                   color:"#60a5fa"},
+  {id:15, category:"Testing Levels",       emoji:"🖥️", term:"System Testing",               definition:"End-to-end testing of the complete, integrated application against the original requirements.",                                                                   example:"Testing entire Trekoroma flow: Register → Login → Search Trek → Book → Payment → Confirmation Email.",          keyPoints:["Full system tested as a whole","Black box approach","Done by dedicated QA team"],                             color:"#6bffdf"},
+  {id:16, category:"Testing Levels",       emoji:"✅", term:"Acceptance Testing (UAT)",     definition:"Testing done by the client/end-user to verify the system meets business requirements before go-live.",                                                            example:"Trek agency owner tests Trekoroma: Can I add a new trek? Does booking notification reach me?",                   keyPoints:["Client/user performs this","Validates business requirements","Last stage before release"],                    color:"#ffaa00"},
+  {id:17, category:"Testing Types",        emoji:"🔄", term:"Regression Testing",           definition:"Re-running existing tests after a code change to ensure that previously working features still work.",                                                             example:"After fixing a payment bug in Trekoroma, re-run ALL old tests (login, search, booking) to confirm nothing broke.", keyPoints:["Run after every code change","Prevents 'fix one, break another'","Ideal for automation"],              color:"#c8ff00"},
+  {id:18, category:"Testing Types",        emoji:"💨", term:"Smoke Testing",                definition:"A quick, basic test to check if the most critical features work before doing detailed testing.",                                                                   example:"After deploying Trekoroma: Can the app launch? Can I log in? Can I see the homepage? If no → stop.",             keyPoints:["Also called 'Build Verification Test'","Takes 15-30 minutes","Go/No-Go decision maker"],                     color:"#ff9f43"},
+  {id:19, category:"Testing Types",        emoji:"🧹", term:"Sanity Testing",               definition:"Narrow, focused testing of a specific bug fix or feature to verify it works correctly after a change.",                                                           example:"Bug fixed: 'Trek price not showing'. Sanity test: Check only price display in search results. Nothing else.",    keyPoints:["Subset of regression testing","Tests specific fix only","Quick and targeted"],                               color:"#ff6b6b"},
+  {id:20, category:"Testing Types",        emoji:"⚡", term:"Performance Testing",          definition:"Testing how the system behaves under load — speed, stability, and scalability under various conditions.",                                                          example:"Simulate 1000 users booking on Trekoroma simultaneously. Does it respond in under 2 seconds?",                  keyPoints:["Load: normal expected users","Stress: beyond max capacity","Spike: sudden traffic burst"],                   color:"#ffd43b"},
+  {id:21, category:"Testing Types",        emoji:"🔒", term:"Security Testing",             definition:"Testing the system to identify vulnerabilities, threats, and risks that could be exploited by attackers.",                                                         example:"SQL Injection: Enter ' OR 1=1 -- in login. XSS: Enter script tags in name field.",                               keyPoints:["OWASP Top 10 vulnerabilities","SQL Injection, XSS, CSRF","Tool: OWASP ZAP (free)"],                           color:"#ff6b6b"},
+  {id:22, category:"Testing Types",        emoji:"📱", term:"Compatibility Testing",        definition:"Testing whether the software works correctly across different browsers, OS, devices, and network conditions.",                                                     example:"Trekoroma tested on: Chrome, Firefox, Safari | Windows, Android, iOS | 4G, WiFi, 2G (slow network).",           keyPoints:["Cross-browser testing","Cross-device testing","Tool: BrowserStack (free tier)"],                             color:"#54e88a"},
+  {id:23, category:"Release Testing",      emoji:"🏠", term:"Alpha Testing",                definition:"Internal testing done by the development team or testers within the organization before release to outside users.",                                                example:"Your own class (Group A) tests Trekoroma in the college lab under controlled conditions.",                        keyPoints:["Done by internal team","Controlled environment","Before beta release"],                                      color:"#a78bfa"},
+  {id:24, category:"Release Testing",      emoji:"🌍", term:"Beta Testing",                 definition:"External testing done by real end-users in their own environment before the product officially launches.",                                                         example:"Share Trekoroma APK with 50 real trekking enthusiasts. They use it on their own phones.",                        keyPoints:["Done by real end users","Uncontrolled environment","Collects real-world feedback"],                           color:"#6bffdf"},
+  {id:25, category:"Test Metrics",         emoji:"📊", term:"Code Coverage",                definition:"The percentage of source code that is executed when your test suite runs. Higher = better tested code.",                                                          example:"If you have 100 lines of code and tests execute 85 lines, coverage = 85%. Use coverage.py.",                    keyPoints:["Statement, Branch, Path coverage types","Industry standard: 70-80%+","Tool: coverage.py, Istanbul"],          color:"#60a5fa"},
+  {id:26, category:"Test Metrics",         emoji:"🏆", term:"Defect Density",               definition:"Number of bugs found per unit of software size (usually per 1000 lines of code). Lower = better quality.",                                                       example:"Trekoroma has 5000 lines of code and 15 bugs found. Defect Density = 15/5 = 3 bugs per KLOC.",                  keyPoints:["Formula: Bugs / (Lines / 1000)","Helps compare module quality","Lower is better"],                            color:"#ffaa00"},
+  {id:27, category:"Key Concepts",         emoji:"🎭", term:"Test Stub vs Test Driver",     definition:"Stub: A dummy module that replaces a component called by the module under test. Driver: Calls the module under test.", example:"Top-Down: Stub replaces database (not yet built). Bottom-Up: Driver simulates the UI calling your login function.", keyPoints:["Stub = replacement for called module","Driver = replacement for calling module","Used in integration testing"], color:"#b0b0cc"},
+  {id:28, category:"Key Concepts",         emoji:"🤖", term:"Test Automation",              definition:"Using tools/scripts to run tests automatically instead of manually. Saves time, enables frequent testing.",                                                        example:"Selenium script automatically opens Trekoroma, fills login form, clicks button, and verifies dashboard appears.", keyPoints:["Faster than manual testing","Best for regression tests","Tools: Selenium, pytest, Jest, Cypress"],       color:"#c8ff00"}
+];
+
+const allCats = ["All", ...new Set(flashcards.map(f => f.category))];
+
+let selCat = "All", idx = 0, flipped = false;
+let mode = "browse";
+let quizAnswer = "", quizResult = null;
+let score = {c:0, t:0};
+let studied = new Set();
+let animating = false;
+
+const filtered = () => selCat === "All" ? flashcards : flashcards.filter(f => f.category === selCat);
+const card = () => { const f = filtered(); return f[idx] || f[0]; };
+
+function render() {
+  const f = filtered(), c = card();
+  const prog = f.length ? ((idx+1)/f.length)*100 : 0;
+
+  // header meta
+  document.getElementById('hd-studied').textContent = studied.size;
+
+  // stats
+  document.getElementById('st-card').textContent = idx+1;
+  document.getElementById('st-studied').textContent = studied.size;
+  document.getElementById('st-score').textContent = score.t ? `${score.c}/${score.t}` : '—';
+  document.getElementById('st-pct').textContent = Math.round(prog)+'%';
+
+  // cat buttons
+  document.getElementById('cat-btns').innerHTML =
+    allCats.map(cat =>
+      `<button class="btn${cat===selCat?' active':''}" onclick="setCat('${cat}')">${cat}</button>`
+    ).join('') +
+    `<button class="btn btn-quiz${mode==='quiz'?' on':''}" onclick="toggleMode()">${mode==='quiz'?'📖 Browse':'🧠 Quiz'}</button>`;
+
+  // progress
+  document.getElementById('pr-left').textContent = `Card ${idx+1} of ${f.length}`;
+  document.getElementById('pr-right').textContent = `${Math.round(prog)}% complete`;
+  document.getElementById('prog-fill').style.width = prog+'%';
+
+  // quiz section
+  document.getElementById('quiz-section').style.display = mode==='quiz' ? '' : 'none';
+  if (mode==='quiz') {
+    const inp = document.getElementById('quiz-inp');
+    inp.value = quizAnswer;
+    inp.className = 'quiz-inp' + (quizResult === 'correct' ? ' correct' : quizResult === 'wrong' ? ' wrong' : '');
+    const btn = document.getElementById('quiz-btn');
+    if (!quizResult) { btn.textContent = 'CHECK'; btn.className = 'quiz-submit'; }
+    else { btn.textContent = 'SEE ANSWER'; btn.className = 'quiz-see'; }
+    const fb = document.getElementById('quiz-fb');
+    if (quizResult) {
+      fb.style.display = '';
+      fb.className = `quiz-feedback ${quizResult}`;
+      fb.textContent = quizResult === 'correct'
+        ? `✓ Correct! "${c.term}"`
+        : `✗ Not quite. Answer: "${c.term}"`;
+    } else { fb.style.display = 'none'; }
+  }
+
+  // card
+  document.getElementById('card-shell').style.cursor = mode === 'browse' ? 'pointer' : 'default';
+  const ci = document.getElementById('card-inner');
+  ci.style.transform = flipped ? 'rotateY(180deg)' : '';
+  ci.style.opacity = animating ? '0' : '1';
+  ci.style.transform = animating ? 'scale(0.96)' : (flipped ? 'rotateY(180deg)' : '');
+
+  // accent
+  const accentColor = c.color;
+  document.getElementById('card-front').style.setProperty('--card-accent', accentColor);
+  document.getElementById('card-back').style.setProperty('--card-accent', accentColor);
+
+  // front
+  document.getElementById('card-front').innerHTML = `
+    <div class="card-top">
+      <span class="cat-label">${c.category}</span>
+      <span class="card-num">#${String(c.id).padStart(2,'0')} / 28</span>
+    </div>
+    <span class="card-emoji">${c.emoji}</span>
+    <div class="card-term">${c.term}</div>
+    <div class="card-hint">${mode==='browse' ? 'Click to reveal definition' : 'Quiz mode — answer above'}</div>
+    <div class="kp-row">${c.keyPoints.map(k=>`<span class="kp">${k}</span>`).join('')}</div>
+  `;
+
+  // back
+  document.getElementById('card-back').innerHTML = `
+    <div class="card-top">
+      <span class="cat-label">${c.category}</span>
+      <span class="card-num">#${String(c.id).padStart(2,'0')} / 28</span>
+    </div>
+    <div class="back-term">${c.term}</div>
+    <div class="back-def">${c.definition}</div>
+    <div class="example-block">
+      <div class="example-lbl">// Real Example</div>
+      <div class="example-txt">${c.example}</div>
+    </div>
+    <div class="kp-back">${c.keyPoints.map(k=>`<span class="kp-b">✓ ${k}</span>`).join('')}</div>
+    <div class="flip-hint-back">click to flip back ↺</div>
+  `;
+
+  // dots
+  const start = Math.max(0, idx-2), end = Math.min(f.length, idx+3);
+  document.getElementById('dots-row').innerHTML = Array.from({length:end-start},(_,i)=>{
+    const di = start+i;
+    return `<div class="dot${di===idx?' active':''}" onclick="jumpTo(${di})"></div>`;
+  }).join('');
+
+  // grid
+  document.getElementById('grid').innerHTML = f.map((fc,i)=>`
+    <div class="gc${i===idx?' cur':''}"
+      style="--gc-accent:${fc.color}"
+      onclick="jumpTo(${i})">
+      <div class="gc-emoji">${fc.emoji}</div>
+      <div class="gc-name">${fc.term}</div>
+      ${studied.has(fc.id)?'<div class="gc-studied">✓ studied</div>':''}
+    </div>
+  `).join('');
+}
+
+function handleFlip() {
+  if (mode !== 'browse') return;
+  flipped = !flipped;
+  if (flipped) studied.add(card().id);
+  render();
+}
+
+function navigate(dir) {
+  if (animating) return;
+  animating = true; flipped = false; quizAnswer = ''; quizResult = null;
+  render();
+  setTimeout(()=>{
+    const f = filtered();
+    let n = idx + dir;
+    if (n < 0) n = f.length-1;
+    if (n >= f.length) n = 0;
+    idx = n; animating = false; render();
+  }, 200);
+}
+
+function jumpTo(i) {
+  idx = i; flipped = false; quizAnswer = ''; quizResult = null;
+  window.scrollTo({top:0,behavior:'smooth'}); render();
+}
+
+function setCat(cat) {
+  selCat = cat; idx = 0; flipped = false; quizAnswer = ''; quizResult = null; render();
+}
+
+function toggleMode() {
+  mode = mode==='browse'?'quiz':'browse';
+  flipped = false; quizAnswer = ''; quizResult = null; render();
+  if (mode==='quiz') setTimeout(()=>document.getElementById('quiz-inp').focus(),50);
+}
+
+function checkQuiz() {
+  const c = card();
+  const ok = quizAnswer.toLowerCase().includes(c.term.toLowerCase().split(' ')[0]);
+  quizResult = ok ? 'correct' : 'wrong';
+  if (ok) score.c++; score.t++;
+  render();
+}
+
+function quizBtnClick() {
+  if (!quizResult) checkQuiz();
+  else { flipped = true; render(); }
+}
+
+// keyboard nav
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  if (e.key === 'ArrowRight') navigate(1);
+  if (e.key === 'ArrowLeft')  navigate(-1);
+  if (e.key === ' ') { e.preventDefault(); handleFlip(); }
+});
+
+render();
+</script>
 </body>
 </html>
