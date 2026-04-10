@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Software Testing Virtual Lab — B.Tech 6th Semester</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8f9fa;color:#1a1a1a;padding:20px;line-height:1.5}
+:root{
+  --color-background-primary:#ffffff;
+  --color-background-secondary:#f1f3f5;
+  --color-background-info:#e8f4fd;
+  --color-background-success:#e8f5e9;
+  --color-background-warning:#fff8e1;
+  --color-background-danger:#fdecea;
+  --color-text-primary:#1a1a1a;
+  --color-text-secondary:#6c757d;
+  --color-text-info:#0c63a0;
+  --color-text-success:#1b5e20;
+  --color-text-warning:#7c5000;
+  --color-text-danger:#b71c1c;
+  --color-border-tertiary:rgba(0,0,0,0.1);
+  --color-border-secondary:rgba(0,0,0,0.2);
+  --color-border-primary:rgba(0,0,0,0.3);
+  --color-border-info:#90caf9;
+  --color-border-success:#a5d6a7;
+  --color-border-danger:#ef9a9a;
+  --border-radius-md:8px;
+  --border-radius-lg:12px;
+  --font-mono:'Courier New',monospace;
+}
+@media(prefers-color-scheme:dark){
+  body{background:#1a1a1a;color:#e8e8e8}
+  :root{
+    --color-background-primary:#2a2a2a;
+    --color-background-secondary:#333333;
+    --color-background-info:#0c2d48;
+    --color-background-success:#0a2e0a;
+    --color-background-warning:#2e1f00;
+    --color-background-danger:#2e0a0a;
+    --color-text-primary:#e8e8e8;
+    --color-text-secondary:#aaaaaa;
+    --color-text-info:#64b5f6;
+    --color-text-success:#81c784;
+    --color-text-warning:#ffcc02;
+    --color-text-danger:#ef9a9a;
+    --color-border-tertiary:rgba(255,255,255,0.1);
+    --color-border-secondary:rgba(255,255,255,0.2);
+    --color-border-primary:rgba(255,255,255,0.3);
+    --color-border-info:#1565c0;
+    --color-border-success:#1b5e20;
+    --color-border-danger:#7f0000;
+  }
+}
+.nav-tab{padding:8px 16px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);background:transparent;color:var(--color-text-secondary);cursor:pointer;font-size:12px;font-family:inherit;transition:all .2s;white-space:nowrap}
+.nav-tab.active{background:var(--color-background-secondary);color:var(--color-text-primary);border-color:var(--color-border-primary)}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:500}
+.badge-blue{background:var(--color-background-info);color:var(--color-text-info)}
+.badge-green{background:var(--color-background-success);color:var(--color-text-success)}
+.badge-amber{background:var(--color-background-warning);color:var(--color-text-warning)}
+.badge-red{background:var(--color-background-danger);color:var(--color-text-danger)}
+.badge-purple{background:#EEEDFE;color:#534AB7}
+.badge-teal{background:#E1F5EE;color:#0F6E56}
+.stack-btn{padding:8px 14px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);background:transparent;color:var(--color-text-secondary);cursor:pointer;font-size:12px;font-family:inherit;transition:all .15s}
+.stack-btn.sel{border-color:var(--color-border-info);background:var(--color-background-info);color:var(--color-text-info);font-weight:500}
+.proj-card{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:12px;cursor:pointer;transition:all .15s;background:var(--color-background-primary)}
+.proj-card:hover{border-color:var(--color-border-secondary)}
+.proj-card.sel{border-color:var(--color-border-info);background:var(--color-background-info)}
+.tool-row:nth-child(even){background:var(--color-background-secondary)}
+.tool-row td{padding:8px 12px;font-size:12px;border-bottom:0.5px solid var(--color-border-tertiary);vertical-align:top}
+.tool-row th{padding:8px 12px;font-size:11px;font-weight:500;color:var(--color-text-secondary);border-bottom:0.5px solid var(--color-border-primary);text-align:left}
+.step-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0}
+.dot-done{background:var(--color-background-success);color:var(--color-text-success)}
+.lab-bug{border:0.5px solid var(--color-border-danger);border-radius:var(--border-radius-md);background:var(--color-background-danger);padding:8px 12px;font-size:12px;color:var(--color-text-danger);margin:4px 0}
+.lab-pass{border:0.5px solid var(--color-border-success);border-radius:var(--border-radius-md);background:var(--color-background-success);padding:8px 12px;font-size:12px;color:var(--color-text-success);margin:4px 0}
+.code-block{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:12px;font-family:var(--font-mono);font-size:11px;color:var(--color-text-primary);overflow-x:auto;line-height:1.6;white-space:pre-wrap;word-break:break-word}
+</style>
+</head>
+<body>
+
+<div style="max-width:960px;margin:0 auto;padding:1rem 0">
+
+<!-- Header -->
+<div style="margin-bottom:1.5rem">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+    <div style="width:32px;height:32px;border-radius:8px;background:var(--color-background-info);display:flex;align-items:center;justify-content:center;font-size:16px">⚗</div>
+    <div>
+      <div style="font-size:18px;font-weight:500;color:var(--color-text-primary)">Software Testing Virtual Lab</div>
+      <div style="font-size:12px;color:var(--color-text-secondary)">B.Tech 6th Semester · Software Engineering · Interactive Simulation Environment</div>
+    </div>
+  </div>
+</div>
+
+<!-- Nav -->
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.5rem" id="nav"></div>
+
+<!-- Content -->
+<div id="content"></div>
+
+</div>
+
+<script>
+const STACKS=[
+  {id:'mern',label:'MERN Stack',color:'badge-green',emoji:'🟢',desc:'MongoDB · Express · React · Node',
+   what:['API endpoints (POST /register, GET /products)','React component rendering','MongoDB data integrity','JWT auth flow','Express middleware chain'],
+   types:['Unit (Jest/Mocha)','Integration (Supertest)','E2E (Cypress)','API (Postman)','Component (React Testing Library)'],
+   tools:['Jest','Supertest','Cypress','Postman','React Testing Library','MongoDB Memory Server'],
+   flow:['Write unit tests for Express routes','Mock MongoDB with in-memory server','Test React components in isolation','Run Supertest for API integration','Cypress E2E for full user journey','CI pipeline via GitHub Actions'],
+   cicd:'Jest → Supertest → Cypress → Deploy (GitHub Actions / Vercel)',
+   code:`// Jest unit test — Express route
+describe('POST /api/login', () => {
+  it('returns token for valid credentials', async () => {
+    const res = await request(app)
+      .post('/api/login')
+      .send({email:'a@b.com', password:'Pass@123'});
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('token');
+  });
+  it('rejects invalid password', async () => {
+    const res = await request(app)
+      .post('/api/login')
+      .send({email:'a@b.com', password:'wrong'});
+    expect(res.status).toBe(401);
+  });
+});`},
+  {id:'react',label:'React Frontend',color:'badge-blue',emoji:'🔵',desc:'React · Redux · Vite · TypeScript',
+   what:['Component rendering correctness','State management (Redux)','User interactions (click, form submit)','Route navigation','Accessibility (ARIA)'],
+   types:['Unit (Jest)','Component (RTL)','Visual Regression (Storybook)','E2E (Playwright)','Accessibility (axe-core)'],
+   tools:['Jest','React Testing Library','Playwright','Storybook','axe-core','MSW (Mock Service Worker)'],
+   flow:['Render components with RTL','Mock API calls via MSW','Assert DOM output & user events','Playwright for full browser E2E','Visual snapshot testing in Storybook','axe-core accessibility audit'],
+   cicd:'Jest/RTL → Playwright → Storybook snapshots → Deploy (Netlify)',
+   code:`// React Testing Library — component test
+import { render, screen, fireEvent } from '@testing-library/react';
+import LoginForm from './LoginForm';
+
+test('shows error on empty submit', async () => {
+  render(<LoginForm />);
+  fireEvent.click(screen.getByRole('button', {name: /login/i}));
+  expect(await screen.findByText(/email required/i))
+    .toBeInTheDocument();
+});
+
+test('calls onSubmit with valid data', async () => {
+  const mockSubmit = jest.fn();
+  render(<LoginForm onSubmit={mockSubmit} />);
+  fireEvent.change(screen.getByLabelText(/email/i),
+    {target:{value:'a@b.com'}});
+  fireEvent.change(screen.getByLabelText(/password/i),
+    {target:{value:'Pass@123'}});
+  fireEvent.click(screen.getByRole('button',{name:/login/i}));
+  expect(mockSubmit).toHaveBeenCalledWith(
+    {email:'a@b.com',password:'Pass@123'});
+});`},
+  {id:'flutter',label:'Flutter Mobile',color:'badge-purple',emoji:'🟣',desc:'Flutter · Dart · Firebase',
+   what:['Widget rendering on device','Navigation flows','REST API integration','Local storage (SharedPrefs)','Platform-specific behaviors (iOS/Android)'],
+   types:['Unit (dart test)','Widget testing (flutter_test)','Integration (flutter_driver)','Golden (visual snapshot)','Performance profiling'],
+   tools:['flutter_test','integration_test','mockito','golden_toolkit','flutter_driver','Firebase Test Lab'],
+   flow:['Unit test Dart business logic','Widget test UI components in isolation','Mock HTTP calls with mockito','Integration tests on emulator/device','Golden file tests for visual regression','Firebase Test Lab for device matrix'],
+   cicd:'flutter test → integration_test → Firebase Test Lab → Deploy (CodeMagic)',
+   code:`// Flutter widget test
+import 'package:flutter_test/flutter_test.dart';
+import 'package:myapp/login_screen.dart';
+
+void main() {
+  testWidgets('Login button triggers auth', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(home: LoginScreen()));
+
+    await tester.enterText(
+      find.byKey(const Key('email_field')), 'a@b.com');
+    await tester.enterText(
+      find.byKey(const Key('pass_field')), 'Pass@123');
+
+    await tester.tap(find.byType(ElevatedButton));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Welcome!'), findsOneWidget);
+  });
+}`},
+  {id:'python',label:'Python Backend',color:'badge-amber',emoji:'🟡',desc:'FastAPI / Django · SQLAlchemy · pytest',
+   what:['API endpoint logic (GET/POST/PUT/DELETE)','Database ORM queries','Business logic functions','Auth middleware (JWT/OAuth)','Celery background tasks'],
+   types:['Unit (pytest)','Integration (TestClient)','API (pytest + httpx)','Load (Locust)','Security (Bandit)'],
+   tools:['pytest','httpx','Factory Boy','Locust','Bandit','coverage.py','SQLAlchemy test fixtures'],
+   flow:['pytest unit tests for each function','Factory Boy generates test DB records','httpx/TestClient for API integration','coverage.py to measure coverage','Locust load testing for performance','Bandit security static analysis'],
+   cicd:'pytest → coverage.py → Locust (staging) → Deploy (Docker/AWS)',
+   code:`# pytest — FastAPI route test
+import pytest
+from httpx import AsyncClient
+from app.main import app
+
+@pytest.mark.asyncio
+async def test_create_user():
+    async with AsyncClient(app=app, base_url="http://test") as c:
+        res = await c.post("/users/", json={
+            "email": "student@college.edu",
+            "password": "Secure@123"
+        })
+    assert res.status_code == 201
+    assert res.json()["email"] == "student@college.edu"
+
+@pytest.mark.asyncio
+async def test_duplicate_email_rejected():
+    async with AsyncClient(app=app, base_url="http://test") as c:
+        await c.post("/users/",
+          json={"email":"x@y.com","password":"abc"})
+        res = await c.post("/users/",
+          json={"email":"x@y.com","password":"xyz"})
+    assert res.status_code == 409`},
+  {id:'jsfs',label:'JS Full Stack',color:'badge-teal',emoji:'🟤',desc:'Next.js · Prisma · tRPC · Vercel',
+   what:['tRPC endpoint type safety','Prisma DB schema migrations','Next.js SSR/SSG page rendering','API Routes behavior','Authentication (NextAuth)'],
+   types:['Unit (Vitest)','Integration (Prisma test DB)','E2E (Playwright)','API (tRPC test client)','Performance (Lighthouse CI)'],
+   tools:['Vitest','Playwright','Prisma (test DB)','MSW','Lighthouse CI','@testing-library/react'],
+   flow:['Vitest for utility functions','Prisma with isolated test DB per suite','MSW intercepts API for component tests','Playwright E2E for critical user paths','Lighthouse CI checks performance budget','Deploy preview on Vercel per PR'],
+   cicd:'Vitest → Playwright → Lighthouse CI → Deploy Preview (Vercel)',
+   code:`// Playwright E2E — Next.js Student Portal
+import { test, expect } from '@playwright/test';
+
+test.describe('Student Portal', () => {
+  test('student can view grades', async ({ page }) => {
+    await page.goto('/login');
+    await page.fill('[data-testid="email"]', 'student@uni.edu');
+    await page.fill('[data-testid="password"]', 'Pass@123');
+    await page.click('[data-testid="login-btn"]');
+
+    await expect(page).toHaveURL('/dashboard');
+    await expect(
+      page.locator('[data-testid="grades-table"]')
+    ).toBeVisible();
+
+    const rows = page.locator('tbody tr');
+    await expect(rows).toHaveCount(6);
+  });
+});`},
+  {id:'api',label:'REST API / Microservices',color:'badge-red',emoji:'🔴',desc:'REST · GraphQL · gRPC · Docker',
+   what:['Each endpoint contract (status codes, response schema)','Service-to-service communication','Rate limiting & throttling','Circuit breaker behavior','API versioning'],
+   types:['Contract (Pact)','Load (k6/JMeter)','Security (OWASP ZAP)','API (Postman/Newman)','Chaos (Chaos Monkey)'],
+   tools:['Postman / Newman','k6','OWASP ZAP','Pact','JMeter','Wiremock','Docker Compose'],
+   flow:['Define API contract with Pact','Newman runs Postman collection in CI','k6 load tests hit /api endpoints','OWASP ZAP scans for vulnerabilities','Wiremock stubs dependent services','Chaos testing kills random containers'],
+   cicd:'Newman → Pact verify → k6 load → OWASP ZAP → Deploy (Kubernetes)',
+   code:`// k6 load test — REST API (Trekoroma Booking)
+import http from 'k6/http';
+import { check, sleep } from 'k6';
+
+export const options = {
+  stages: [
+    { duration: '30s', target: 50 },   // ramp up
+    { duration: '1m',  target: 100 },  // stay at 100 users
+    { duration: '20s', target: 0 },    // ramp down
+  ],
+  thresholds: {
+    http_req_duration: ['p(95)<500'],  // 95% under 500ms
+    http_req_failed:   ['rate<0.01'], // <1% error rate
+  },
+};
+
+export default function () {
+  const res = http.post(
+    'https://api.trekoroma.com/bookings',
+    JSON.stringify({trekId:'T001', userId:'U42'}),
+    {headers:{'Content-Type':'application/json'}});
+  check(res, {
+    'status 201': r => r.status === 201,
+    'has bookingId': r => r.json('bookingId') !== undefined,
+  });
+  sleep(1);
+}`},
+];
+
+const PROJECTS=[
+  {id:'ecomm',name:'E-Commerce App',icon:'🛒',desc:'Product catalog, cart, checkout, payments',stacks:['mern','react','jsfs']},
+  {id:'chat',name:'Real-time Chat',icon:'💬',desc:'WebSocket messaging, rooms, auth',stacks:['mern','jsfs','api']},
+  {id:'portal',name:'Student Portal',icon:'🎓',desc:'Grades, attendance, schedule, assignments',stacks:['python','flutter','react']},
+  {id:'api',name:'Trek Booking API',icon:'🏔️',desc:'Trekoroma — trek search, booking, payments',stacks:['api','python','mern']},
+];
+
+const TABS=[
+  {id:'lab',label:'Virtual Lab'},
+  {id:'method',label:'Methodology'},
+  {id:'pyramid',label:'Test Pyramid'},
+  {id:'tools',label:'Tool Map'},
+  {id:'hands',label:'Hands-on Lab'},
+  {id:'teacher',label:'Teacher Guide'},
+];
+
+let activeTab='lab';
+let selStack='mern';
+let selProject='ecomm';
+
+function render(){
+  document.getElementById('nav').innerHTML=TABS.map(t=>
+    `<button class="nav-tab${activeTab===t.id?' active':''}" onclick="setTab('${t.id}')">${t.label}</button>`
+  ).join('');
+  const c=document.getElementById('content');
+  if(activeTab==='lab')c.innerHTML=renderLab();
+  else if(activeTab==='method')c.innerHTML=renderMethod();
+  else if(activeTab==='pyramid')c.innerHTML=renderPyramid();
+  else if(activeTab==='tools')c.innerHTML=renderTools();
+  else if(activeTab==='hands')c.innerHTML=renderHands();
+  else if(activeTab==='teacher')c.innerHTML=renderTeacher();
+}
+
+function setTab(t){activeTab=t;render();}
+function setStack(s){selStack=s;render();}
+function setProject(p){selProject=p;render();}
+
+function renderLab(){
+  const s=STACKS.find(x=>x.id===selStack);
+  return`
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+  <div class="card">
+    <div style="font-size:13px;font-weight:500;margin-bottom:10px">📁 Select Project</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      ${PROJECTS.map(p=>`
+        <div class="proj-card${selProject===p.id?' sel':''}" onclick="setProject('${p.id}')">
+          <div style="font-size:18px;margin-bottom:4px">${p.icon}</div>
+          <div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">${p.name}</div>
+          <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">${p.desc}</div>
+        </div>`).join('')}
+    </div>
+  </div>
+  <div class="card">
+    <div style="font-size:13px;font-weight:500;margin-bottom:10px">⚙ Select Tech Stack</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px">
+      ${STACKS.map(s=>`<button class="stack-btn${selStack===s.id?' sel':''}" onclick="setStack('${s.id}')">${s.emoji} ${s.label}</button>`).join('')}
+    </div>
+    <div style="margin-top:12px;padding:10px;background:var(--color-background-secondary);border-radius:var(--border-radius-md)">
+      <div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">${s.emoji} ${s.label}</div>
+      <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">${s.desc}</div>
+    </div>
+  </div>
+</div>
+<div class="card" style="margin-bottom:12px">
+  <div style="font-size:13px;font-weight:500;margin-bottom:12px">🔬 Testing Environment — ${s.emoji} ${s.label}</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+    <div>
+      <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:8px;font-weight:500">WHAT TO TEST</div>
+      ${s.what.map(w=>`<div style="font-size:11px;padding:4px 0;border-bottom:0.5px solid var(--color-border-tertiary)">▸ ${w}</div>`).join('')}
+    </div>
+    <div>
+      <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:8px;font-weight:500">TESTING TYPES</div>
+      ${s.types.map(t=>`<div style="font-size:11px;padding:4px 0;border-bottom:0.5px solid var(--color-border-tertiary)">▸ ${t}</div>`).join('')}
+    </div>
+    <div>
+      <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:8px;font-weight:500">TOOLS</div>
+      ${s.tools.map(t=>`<span class="badge badge-blue" style="margin:2px;display:inline-block">${t}</span>`).join('')}
+    </div>
+  </div>
+</div>
+<div class="card">
+  <div style="font-size:13px;font-weight:500;margin-bottom:10px">💻 Sample Test — ${s.label}</div>
+  <pre class="code-block">${s.code}</pre>
+  <div style="margin-top:10px;padding:8px 12px;background:var(--color-background-success);border-radius:var(--border-radius-md);font-size:11px;color:var(--color-text-success)">
+    ✅ CI/CD Pipeline: ${s.cicd}
+  </div>
+</div>`;
+}
+
+function renderMethod(){
+  const s=STACKS.find(x=>x.id===selStack);
+  return`
+<div style="margin-bottom:12px;display:flex;gap:6px;flex-wrap:wrap">
+  ${STACKS.map(x=>`<button class="stack-btn${selStack===x.id?' sel':''}" onclick="setStack('${x.id}')">${x.emoji} ${x.label}</button>`).join('')}
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+  <div class="card">
+    <div style="font-size:13px;font-weight:500;margin-bottom:10px">📋 Testing Workflow</div>
+    ${s.flow.map((f,i)=>`
+      <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--color-border-tertiary)">
+        <div class="step-dot dot-done">${i+1}</div>
+        <div style="font-size:12px;padding-top:4px">${f}</div>
+      </div>`).join('')}
+  </div>
+  <div class="card">
+    <div style="font-size:13px;font-weight:500;margin-bottom:10px">🧩 Testing Types Breakdown</div>
+    ${[
+      {type:'Unit',desc:'Smallest piece in isolation',effort:'60%',col:'badge-blue'},
+      {type:'Integration',desc:'Modules working together',effort:'25%',col:'badge-green'},
+      {type:'E2E',desc:'Full user journey',effort:'10%',col:'badge-amber'},
+      {type:'Performance',desc:'Load, stress, spike',effort:'3%',col:'badge-red'},
+      {type:'Security',desc:'Vulnerabilities & exploits',effort:'2%',col:'badge-purple'},
+    ].map(t=>`
+      <div style="margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+          <span class="badge ${t.col}">${t.type}</span>
+          <span style="font-size:11px;color:var(--color-text-secondary)">${t.effort}</span>
+        </div>
+        <div style="height:5px;background:var(--color-background-secondary);border-radius:3px">
+          <div style="height:5px;border-radius:3px;background:var(--color-background-info);width:${t.effort}"></div>
+        </div>
+        <div style="font-size:10px;color:var(--color-text-secondary);margin-top:2px">${t.desc}</div>
+      </div>`).join('')}
+  </div>
+</div>
+<div class="card">
+  <div style="font-size:13px;font-weight:500;margin-bottom:10px">🔄 Code → Build → Test → Deploy Lifecycle</div>
+  <div style="display:flex;align-items:center;gap:0;overflow-x:auto;padding-bottom:4px">
+    ${['📝 Code','🔨 Build','🧪 Unit Test','🔗 Integration','🖥 E2E','🔒 Security','⚡ Performance','🚀 Deploy'].map((s,i,arr)=>`
+      <div style="text-align:center;min-width:80px">
+        <div style="padding:8px 4px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);font-size:10px">${s}</div>
+      </div>
+      ${i<arr.length-1?`<div style="font-size:12px;color:var(--color-text-secondary);padding:0 2px">→</div>`:''}`).join('')}
+  </div>
+</div>`;
+}
+
+function renderPyramid(){
+  const layers=[
+    {label:'E2E Tests',sub:'Cypress · Playwright · Selenium',pct:'10%',col:'#D85A30',lcol:'#FAECE7',tcol:'#993C1D'},
+    {label:'Integration Tests',sub:'Supertest · httpx · Postman',pct:'20%',col:'#BA7517',lcol:'#FAEEDA',tcol:'#854F0B'},
+    {label:'Component / API Tests',sub:'RTL · flutter_test · Pact',pct:'30%',col:'#185FA5',lcol:'#E6F1FB',tcol:'#0C447C'},
+    {label:'Unit Tests',sub:'Jest · pytest · dart test · Vitest',pct:'40%',col:'#0F6E56',lcol:'#E1F5EE',tcol:'#085041'},
+  ];
+  return`
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+  <div class="card">
+    <div style="font-size:13px;font-weight:500;margin-bottom:12px">🔺 Testing Pyramid</div>
+    <div style="text-align:center;padding:8px 0">
+      ${layers.map((l,i)=>{
+        const w=40+i*20;
+        return`<div style="margin:4px auto;width:${w}%;background:${l.lcol};border:1px solid ${l.col}33;border-radius:6px;padding:10px 8px;text-align:center">
+          <div style="font-size:12px;font-weight:500;color:${l.tcol}">${l.label}</div>
+          <div style="font-size:10px;color:${l.col};margin-top:2px">${l.sub}</div>
+          <span style="font-size:10px;background:${l.col};color:#fff;padding:1px 8px;border-radius:10px;margin-top:4px;display:inline-block">${l.pct}</span>
+        </div>`;}).join('')}
+    </div>
+    <div style="margin-top:8px;font-size:11px;color:var(--color-text-secondary);text-align:center">More tests at bottom = faster feedback, lower cost</div>
+  </div>
+  <div class="card">
+    <div style="font-size:13px;font-weight:500;margin-bottom:10px">📊 Cost vs Coverage</div>
+    ${layers.map(l=>`
+      <div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+          <span style="font-size:12px">${l.label}</span>
+          <span style="font-size:11px;color:var(--color-text-secondary)">${l.pct}</span>
+        </div>
+        <div style="height:6px;background:var(--color-background-secondary);border-radius:3px">
+          <div style="height:6px;border-radius:3px;background:${l.col};width:${l.pct}"></div>
+        </div>
+        <div style="font-size:10px;color:var(--color-text-secondary);margin-top:2px">${l.sub}</div>
+      </div>`).join('')}
+    <div style="margin-top:10px;padding:8px;background:var(--color-background-secondary);border-radius:var(--border-radius-md)">
+      <div style="font-size:11px;font-weight:500;color:var(--color-text-secondary)">Golden Rule</div>
+      <div style="font-size:11px;margin-top:4px">Write many fast unit tests, fewer slow E2E tests. Fast feedback = developer joy + fewer regressions.</div>
+    </div>
+  </div>
+</div>
+<div class="card" style="margin-top:12px">
+  <div style="font-size:13px;font-weight:500;margin-bottom:10px">⚖ Failure vs Success Scenarios</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    <div>
+      <div style="font-size:12px;font-weight:500;color:var(--color-text-danger);margin-bottom:8px">❌ Failure Scenario</div>
+      <div class="lab-bug">FAIL src/auth.test.js — POST /login returns 401 for valid credentials (expected 200)</div>
+      <div class="lab-bug">FAIL components/Cart.test.jsx — Cannot read property 'items' of undefined</div>
+      <div class="lab-bug">FAIL e2e/checkout.spec.ts — Timeout: payment form not visible after 5000ms</div>
+    </div>
+    <div>
+      <div style="font-size:12px;font-weight:500;color:var(--color-text-success);margin-bottom:8px">✅ Success Scenario</div>
+      <div class="lab-pass">PASS src/auth.test.js — 4 tests passed in 234ms</div>
+      <div class="lab-pass">PASS components/Cart.test.jsx — 7 tests passed, coverage 88%</div>
+      <div class="lab-pass">PASS e2e/checkout.spec.ts — Full checkout flow completed in 3.2s</div>
+    </div>
+  </div>
+</div>`;
+}
+
+function renderTools(){
+  const rows=[
+    ['MERN Stack','Unit','Jest + Supertest','npm test → assert HTTP 200/400 on Express routes'],
+    ['MERN Stack','Component','React Testing Library','render(<LoginForm/>), fireEvent.click, findByText'],
+    ['MERN Stack','E2E','Cypress','cy.visit("/"), cy.get("[data-cy=email]").type(...)'],
+    ['React Frontend','Unit','Jest + Vitest','test("renders button", ()=>render(<Btn/>))'],
+    ['React Frontend','Component','React Testing Library + MSW','Mock API, test component behavior'],
+    ['React Frontend','Visual','Storybook + Chromatic','Snapshot visual regression per component'],
+    ['React Frontend','E2E','Playwright','page.fill(), page.click(), expect(page).toHaveURL()'],
+    ['React Frontend','Accessibility','axe-core','await expect(container).toHaveNoViolations()'],
+    ['Flutter Mobile','Unit','dart test','expect(calculate(2,3), equals(5))'],
+    ['Flutter Mobile','Widget','flutter_test','await tester.pumpWidget(), await tester.tap()'],
+    ['Flutter Mobile','Integration','integration_test','Real device / emulator end-to-end flows'],
+    ['Flutter Mobile','Visual','golden_toolkit','matchesGoldenFile("login.png")'],
+    ['Python Backend','Unit','pytest + fixtures','def test_login(client): assert res.status_code==200'],
+    ['Python Backend','API','httpx + pytest-asyncio','async with AsyncClient(app) as c: await c.post(...)'],
+    ['Python Backend','Load','Locust','class TrekUser(HttpUser): @task def book_trek(self)'],
+    ['Python Backend','Security','Bandit + OWASP ZAP','bandit -r app/ → scan for SQL injection, XSS'],
+    ['JS Full Stack','Unit','Vitest','vi.fn() mocks, fast hot-module test runner'],
+    ['JS Full Stack','E2E','Playwright','Cross-browser: Chrome, Firefox, Safari, Mobile'],
+    ['JS Full Stack','Performance','Lighthouse CI','lighthouse --budget.json → Core Web Vitals'],
+    ['REST APIs','Contract','Pact','Consumer-driven contracts between microservices'],
+    ['REST APIs','API','Postman + Newman','newman run collection.json -e env.json'],
+    ['REST APIs','Load','k6 + JMeter','k6 run script.js --vus 100 --duration 1m'],
+    ['REST APIs','Security','OWASP ZAP','zap-baseline.py -t https://api.trekoroma.com'],
+    ['REST APIs','Chaos','Chaos Monkey','Randomly terminate service containers in staging'],
+  ];
+  const badgeFor=(i)=>i<3?'badge-green':i<8?'badge-blue':i<12?'badge-purple':i<16?'badge-amber':'badge-red';
+  return`
+<div class="card">
+  <div style="font-size:13px;font-weight:500;margin-bottom:12px">🔧 Complete Tool Mapping Table</div>
+  <div style="overflow-x:auto">
+    <table style="width:100%;border-collapse:collapse">
+      <thead>
+        <tr class="tool-row">
+          <th>Tech Stack</th><th>Testing Type</th><th>Tool(s)</th><th>Example Workflow</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows.map((r,i)=>`
+          <tr class="tool-row">
+            <td><span class="badge ${badgeFor(i)}">${r[0]}</span></td>
+            <td>${r[1]}</td>
+            <td><code style="font-family:var(--font-mono);font-size:10px;color:var(--color-text-info)">${r[2]}</code></td>
+            <td style="color:var(--color-text-secondary);font-size:11px;font-family:var(--font-mono)">${r[3]}</td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>
+</div>
+<div style="margin-top:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+  ${[
+    {name:'Free Tools',items:['pytest','Jest','Cypress (open source)','Postman','Apache JMeter','OWASP ZAP','Selenium IDE','coverage.py']},
+    {name:'Install Commands',items:['npm install --save-dev jest','pip install pytest','npm install cypress','flutter pub add flutter_test','pip install locust','npm install @playwright/test']},
+    {name:'CI/CD Platforms',items:['GitHub Actions (free)','GitLab CI (free)','CircleCI (free tier)','Jenkins (self-hosted)','Vercel (preview deploys)','Docker Hub (free)']},
+  ].map(g=>`
+    <div class="card">
+      <div style="font-size:12px;font-weight:500;margin-bottom:8px">${g.name}</div>
+      ${g.items.map(i=>`<div style="font-size:11px;color:var(--color-text-secondary);padding:3px 0;border-bottom:0.5px solid var(--color-border-tertiary)">${i}</div>`).join('')}
+    </div>`).join('')}
+</div>`;
+}
+
+function renderHands(){
+  const exercises=[
+    {title:'Exercise 1 — Introduce a Bug',icon:'🐛',
+     desc:'Modify the authentication function to skip password validation.',
+     code:`// BUG INTRODUCED — password check removed!
+function authenticateUser(email, password, db) {
+  const user = db.findByEmail(email);
+  if (!user) return null;
+  // REMOVED: if (!bcrypt.compare(password, user.hash)) return null;
+  return generateToken(user);  // ANY password now works!
+}`,
+     task:'Run the unit test suite. Which tests fail? Why?',
+     expect:'Tests for "wrong password rejected" should FAIL — exposing the bug.',
+     level:'Beginner',col:'badge-red'},
+    {title:'Exercise 2 — Select Strategy',icon:'🎯',
+     desc:'You have a new Trek Booking API feature. Build your test plan.',
+     code:`New Feature: "Trek Cancellation with Refund"
+- User cancels booking
+- Refund triggered (if > 24 hrs before trek)
+- Email notification sent
+- Booking status updated in DB
+
+Your test plan (fill in):
+1. Unit test: _______________
+2. Integration test: _______________
+3. API test: _______________
+4. E2E test: _______________`,
+     task:'Write your test plan, then compare with the answer.',
+     expect:`1. Unit: test refund calculation logic (24hr rule)
+2. Integration: test DB update + email service together
+3. API: POST /cancel returns 200, refund amount correct
+4. E2E: user clicks Cancel → confirmation shown → email received`,
+     level:'Intermediate',col:'badge-amber'},
+    {title:'Exercise 3 — Analyze Failures',icon:'🔍',
+     desc:'Examine this test output and diagnose the root cause.',
+     code:`FAIL  src/booking.test.js
+  ✓ creates booking successfully (45ms)
+  ✓ rejects duplicate booking (23ms)
+  ✗ calculates trek price with discount (12ms)
+    Expected: 800
+    Received: 1000
+  ✗ sends confirmation email (timeout 5000ms)
+    Error: SMTP connection refused
+
+Tests: 2 failed, 2 passed`,
+     task:'1. What is wrong with the price test?  2. What is wrong with the email test?',
+     expect:`Price: discount logic has a bug (applying 0% instead of 20%)
+Email: SMTP server not mocked — needs a mock email service`,
+     level:'Intermediate',col:'badge-blue'},
+    {title:'Exercise 4 — Fix and Retest',icon:'✅',
+     desc:'Fix the discovered bugs and rerun the test suite to verify.',
+     code:`// BROKEN — discount not applied
+function calculatePrice(basePrice, isMember, amount) {
+  if (isMember && amount > 1000) {
+    return basePrice * 1.0;  // BUG: should be 0.8 (20% off)
+  }
+  return basePrice;
+}
+
+// TODO: Fix the bug above, then add 2 more test cases:
+// 1. Non-member, amount > 1000 → 10% discount
+// 2. Member, amount <= 1000 → no discount
+// Run: jest calculatePrice.test.js --coverage`,
+     task:'Fix the bug, write 2 new tests, achieve 100% branch coverage.',
+     expect:'All 4 tests pass. Jest coverage shows 4/4 branches hit (100%).',
+     level:'Advanced',col:'badge-green'},
+  ];
+  return`
+<div style="margin-bottom:12px">
+  <div style="font-size:13px;font-weight:500">🔬 Guided Lab Exercises</div>
+  <div style="font-size:12px;color:var(--color-text-secondary);margin-top:4px">Progressively introduce bugs → select strategies → analyze failures → fix and retest</div>
+</div>
+<div style="display:grid;gap:12px">
+  ${exercises.map(e=>`
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+        <div style="font-size:13px;font-weight:500">${e.icon} ${e.title}</div>
+        <span class="badge ${e.col}">${e.level}</span>
+      </div>
+      <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:8px">${e.desc}</div>
+      <pre class="code-block">${e.code}</pre>
+      <div style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="padding:8px;background:var(--color-background-secondary);border-radius:var(--border-radius-md)">
+          <div style="font-size:10px;font-weight:500;color:var(--color-text-secondary);margin-bottom:4px">📌 TASK</div>
+          <div style="font-size:11px">${e.task}</div>
+        </div>
+        <div style="padding:8px;background:var(--color-background-success);border-radius:var(--border-radius-md)">
+          <div style="font-size:10px;font-weight:500;color:var(--color-text-success);margin-bottom:4px">✅ EXPECTED ANSWER</div>
+          <div style="font-size:11px">${e.expect}</div>
+        </div>
+      </div>
+    </div>`).join('')}
+</div>
+<div class="card" style="margin-top:12px;border-color:var(--color-border-info)">
+  <div style="font-size:13px;font-weight:500;margin-bottom:8px">🏁 Final Mini-Project Checklist</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+    ${['15 black box test cases (EP + BVA)','White box coverage ≥ 70% (coverage.py / Jest)','5 unit tests with pytest or Jest','Postman collection — 8 API tests','1 Selenium / Playwright E2E script','Alpha test bug report (min 3 bugs)','JMeter / k6 report — 50 concurrent users','1-page summary: what broke and why'].map(item=>`
+      <div style="display:flex;align-items:center;gap:8px;padding:6px;background:var(--color-background-secondary);border-radius:var(--border-radius-md)">
+        <div style="width:14px;height:14px;border:1.5px solid var(--color-border-primary);border-radius:3px;flex-shrink:0"></div>
+        <div style="font-size:11px">${item}</div>
+      </div>`).join('')}
+  </div>
+</div>`;
+}
+
+function renderTeacher(){
+  const formats=[
+    {title:'Classroom Demo',icon:'📺',duration:'90 min',mode:'Lecturer-led',
+     steps:['Open virtual lab on projector','Select MERN → E-Commerce project','Walk through test types live (20 min)','Show code examples per testing type (20 min)','Run live test failures and fixes (30 min)','Q&A and tool install guide (20 min)'],
+     outcome:'Students understand all testing types and can name the right tool'},
+    {title:'Workshop Activity',icon:'🧑‍💻',duration:'3 hours',mode:'Group-based (4 students/group)',
+     steps:['Each group picks a different tech stack','30 min: groups explore methodology tab','45 min: groups run 3 lab exercises','30 min: groups present their bug report','45 min: compare testing approaches across stacks','30 min: fill the tool mapping table together'],
+     outcome:'Students can compare testing across MERN, Python, Flutter, React'},
+    {title:'Mini Hackathon',icon:'🏆',duration:'Full Day (6–8 hrs)',mode:'Competitive teams',
+     steps:['Morning: all teams build same feature (trek booking)','Teams choose their own tech stack','Afternoon: 5 secret bugs introduced per project','Teams write and run their test suites','Score: bugs found + coverage achieved + quality','Evening: leaderboard + retrospective'],
+     outcome:'Industry simulation — students experience real testing pressure'},
+    {title:'Lab Experiment',icon:'🔬',duration:'2 hr lab session',mode:'Individual assessment',
+     steps:['Each student gets a broken codebase','Student identifies which tests fail','Student diagnoses root cause in report','Student fixes the bug and reruns suite','Student records before/after coverage','Submit: bug report + fixed code + test file'],
+     outcome:'Formative assessment of individual testing competency'},
+  ];
+  return`
+<div style="margin-bottom:12px">
+  <div style="font-size:13px;font-weight:500">👨‍🏫 Teacher Implementation Guide</div>
+  <div style="font-size:12px;color:var(--color-text-secondary);margin-top:4px">Four modes for conducting this as different learning formats</div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+  ${formats.map(f=>`
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+        <div style="font-size:14px;font-weight:500">${f.icon} ${f.title}</div>
+        <span class="badge badge-blue">${f.duration}</span>
+      </div>
+      <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:8px">Mode: ${f.mode}</div>
+      ${f.steps.map((s,i)=>`
+        <div style="display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary)">
+          <div class="step-dot dot-done" style="width:20px;height:20px;font-size:10px;min-width:20px">${i+1}</div>
+          <div style="font-size:11px;padding-top:2px">${s}</div>
+        </div>`).join('')}
+      <div style="margin-top:8px;padding:6px 10px;background:var(--color-background-success);border-radius:var(--border-radius-md);font-size:11px;color:var(--color-text-success)">
+        🎯 ${f.outcome}
+      </div>
+    </div>`).join('')}
+</div>
+<div class="card">
+  <div style="font-size:13px;font-weight:500;margin-bottom:10px">📋 Assessment Rubric (Total: 100 marks)</div>
+  <div style="overflow-x:auto">
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr class="tool-row">
+        <th>Criterion</th><th>Excellent (A)</th><th>Good (B)</th><th>Pass (C)</th><th>Marks</th>
+      </tr></thead>
+      <tbody>
+        ${[
+          ['Test Case Design','Uses EP, BVA, Decision Tables correctly','Uses 2 techniques correctly','Uses 1 technique','20'],
+          ['Code Coverage','≥ 80% coverage achieved','60–79% coverage','40–59% coverage','20'],
+          ['Tool Usage','Uses 3+ correct tools for stack','Uses 2 correct tools','Uses 1 tool','20'],
+          ['Bug Report Quality','Clear ID, steps, severity, fix verified','Steps and severity included','Bug identified only','20'],
+          ['CI/CD Integration','Full pipeline with automation','Partial automation','Manual run only','20'],
+        ].map(r=>`
+          <tr class="tool-row">
+            <td style="font-weight:500">${r[0]}</td>
+            <td style="color:var(--color-text-success)">${r[1]}</td>
+            <td style="color:var(--color-text-warning)">${r[2]}</td>
+            <td style="color:var(--color-text-danger)">${r[3]}</td>
+            <td style="font-weight:500;text-align:center">${r[4]}</td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>
+</div>`;
+}
+
+render();
+</script>
+</body>
+</html>

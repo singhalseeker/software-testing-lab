@@ -1,0 +1,77 @@
+name: Validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check required files exist
+        run: |
+          echo "Checking required files..."
+          files=(
+            "index.html"
+            "flashcards/index.html"
+            "docs/teaching-guide.md"
+            "docs/assessment-rubric.md"
+            "docs/tool-setup.md"
+            ".github/ISSUE_TEMPLATE/bug-report.md"
+          )
+          missing=0
+          for f in "${files[@]}"; do
+            if [ ! -f "$f" ]; then
+              echo "MISSING: $f"
+              missing=1
+            else
+              echo "OK: $f"
+            fi
+          done
+          if [ $missing -eq 1 ]; then
+            echo "One or more required files are missing."
+            exit 1
+          fi
+          echo "All required files present."
+
+      - name: Validate HTML files
+        run: |
+          echo "Checking HTML files are non-empty..."
+          for f in index.html flashcards/index.html; do
+            if [ ! -s "$f" ]; then
+              echo "ERROR: $f is empty"
+              exit 1
+            fi
+            echo "OK: $f"
+          done
+
+      - name: Validate markdown files
+        run: |
+          echo "Checking markdown files are non-empty..."
+          for f in docs/teaching-guide.md docs/assessment-rubric.md docs/tool-setup.md; do
+            if [ ! -s "$f" ]; then
+              echo "ERROR: $f is empty"
+              exit 1
+            fi
+            echo "OK: $f"
+          done
+
+      - name: Check empty folders have .gitkeep
+        run: |
+          echo "Checking placeholder files..."
+          for d in exercises sample-projects; do
+            if [ ! -f "$d/.gitkeep" ]; then
+              echo "WARNING: $d/.gitkeep not found"
+            else
+              echo "OK: $d/.gitkeep"
+            fi
+          done
+
+      - name: Done
+        run: echo "Validation complete."
